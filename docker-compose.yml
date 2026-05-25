@@ -1,0 +1,109 @@
+services:
+  auth:
+    build:
+      dockerfile: ./src/Coldmart.Auth.API/Dockerfile
+    ports:
+      - "8082:8080"
+    expose:
+      - 8080
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  cursos:
+    build:
+      dockerfile: ./src/Coldmart.Cursos.API/Dockerfile
+    ports:
+      - "8085:8080"
+    expose:
+      - 8080
+    depends_on:
+      auth:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  alunos:
+    build:
+      dockerfile: ./src/Coldmart.Alunos.API/Dockerfile
+    ports:
+     - "8083:8080"
+    expose:
+      - 8080
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      cursos:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - RabbitMq__Host=rabbitmq
+
+  pagamentos:
+    build:
+      dockerfile: ./src/Coldmart.Pagamentos.API/Dockerfile
+    ports:
+      - "8084:8080"
+    expose:
+      - 8080
+    depends_on:
+      alunos:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - RabbitMq__Host=rabbitmq
+      
+  bff:
+    build:
+      dockerfile: ./src/Coldmart.BFF/Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      alunos:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:8080
+  
+  db:
+    container_name: coldmart-db
+    build:
+      dockerfile: Dockerfile
+      context: ./sql
+    environment:
+      SA_PASSWORD: "Strong@Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    expose:
+      - 1433
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    expose:
+      - 5672
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "coldmart"
+      RABBITMQ_DEFAULT_PASS: "coldmart"  
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5

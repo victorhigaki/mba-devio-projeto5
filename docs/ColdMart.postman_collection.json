@@ -1,0 +1,449 @@
+{
+  "info": {
+    "_postman_id": "4b6372db-44c3-464e-a8e1-fa532794444f",
+    "name": "ColdMart",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3784958"
+  },
+  "item": [
+    {
+      "name": "Auth Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var response = pm.response.json();\r",
+              "\r",
+              "console.log(response.accessToken)\r",
+              "\r",
+              "pm.collectionVariables.set(\"adminToken\", response.accessToken);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"admin@coldmart.com\",\r\n    \"senha\": \"Admin@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/auth/login",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth Aluno",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var response = pm.response.json();\r",
+              "\r",
+              "pm.collectionVariables.set(\"alunoToken\", response.accessToken);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"aluno@coldmart.com\",\r\n    \"senha\": \"Aluno@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/auth/login",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cursos",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nome\": \"Nome Teste\",\r\n    \"conteudosProgramaticos\": [\r\n        {\r\n            \"titulo\": \"Titulo Teste Titulo Teste Titulo Teste\",\r\n            \"descricao\": \"Descricao Teste Descricao Teste Descricao Teste Descricao Teste Descricao Teste\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/cursos",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "cursos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Cursos ObterTodos",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8005/api/cursos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8005",
+          "path": [
+            "api",
+            "cursos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Cursos ObterPorId",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8005/api/cursos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8005",
+          "path": [
+            "api",
+            "cursos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Aulas",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"titulo\": \"Nova Aula\",\r\n    \"duracaosegundos\": 1800,\r\n    \"cursoId\": \"d54c28c7-8004-4c62-ad39-55327e6f4786\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/cursos/d54c28c7-8004-4c62-ad39-55327e6f4786/aulas",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "cursos",
+            "d54c28c7-8004-4c62-ad39-55327e6f4786",
+            "aulas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "MatricularAoCurso Alunos Cursos",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{alunoToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"cursoId\": \"449a19d6-b38f-47f1-ad53-18fd9452474d\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/Alunos/cursos",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "Alunos",
+            "cursos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Pagamentos (Matricular)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{alunoToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"cartao\": {\r\n        \"numeroCartao\": \"1234567890123\",\r\n        \"nomeTitular\": \"teste\",\r\n        \"dataValidade\": \"2029-03-26\",\r\n        \"codigoSeguranca\": \"123\"\r\n    },\r\n    \"matriculaId\": \"8e7d6cd3-2a0d-4c05-b4c2-c42d6d0c3c55\",\r\n    \"Valor\": 123.45\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/Pagamentos",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "Pagamentos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Pagamentos Aprovar",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"e450ce2c-363b-4a36-aa34-46afc8190e96\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/Pagamentos/e450ce2c-363b-4a36-aa34-46afc8190e96/aprovar",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "Pagamentos",
+            "e450ce2c-363b-4a36-aa34-46afc8190e96",
+            "aprovar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RealizarAula",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"aulaId\": \"89ce4062-7c85-43b8-8a78-b0b8c25e50ad\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{defaultUrl}}/api/Alunos/cursos/aulas",
+          "host": [
+            "{{defaultUrl}}"
+          ],
+          "path": [
+            "api",
+            "Alunos",
+            "cursos",
+            "aulas"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "alunoToken",
+      "value": ""
+    },
+    {
+      "key": "defaultUrl",
+      "value": ""
+    }
+  ]
+}
