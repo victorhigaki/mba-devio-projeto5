@@ -65,7 +65,7 @@ jobs:
       
       - name: Test
         run: 
-          dotnet test --no-build --no-restore ./Coldmart.sln --configuration Release --logger trx --results-directory "TestResults"
+          dotnet test --no-build --no-restore ./Coldmart.sln --logger trx --results-directory "TestResults"
 
       - uses: actions/upload-artifact@v4
         with:
