@@ -3,11 +3,15 @@ name: Build Project
 on:
   push:
     branches:
-      - github-actions
+      - main
   pull_request:
     branches:
-      - github-actions
+      - main
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
@@ -73,7 +77,7 @@ jobs:
           path: TestResults
 
   backend-lint:
-    needs: backend-build-and-test
+    needs: versionamento
     runs-on: ubuntu-latest
     name: Backend Lint
 
