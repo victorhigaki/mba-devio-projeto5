@@ -93,3 +93,10 @@ jobs:
           VALIDATE_YAML: "true"
           VALIDATE_CSHARP: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  dependency-checks:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
