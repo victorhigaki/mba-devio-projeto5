@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Versionamento
 
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -76,6 +79,16 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
+      - name: Publish
+        run: dotnet publish ./src/Coldmart.Api/Coldmart.Api.csproj --no-restore --no-build --configuration Release --output ./publish
+        if: github.ref == 'refs/heads/main'
+
+      - name: Upload dotnet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: api
+          path: ./publish
+
   backend-lint:
     needs: versionamento
     runs-on: ubuntu-latest
@@ -130,3 +143,22 @@ jobs:
         name: Analyze CodeQL - ${{ matrix.name }}
         with:
           category: "/language:${{ matrix.language }}"
+  
+  build-docker-image:
+    needs: [versionamento, backend-build-and-test]
+    runs-on: ubuntu-latest
+
+    env:
+      version: ${{ needs.versionamento.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: app
+          merge-multiple: false
+
+      - name: Build Docker Image
+        run: |
+          docker build -t coldmart-backend:${{ env.version }} .
