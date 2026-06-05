@@ -82,7 +82,6 @@ jobs:
 
       - name: Publish Alunos.API
         run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --no-restore --no-build --output ./Coldmart.Alunos.API
-        if: github.ref == 'refs/heads/main'
         
       - name: Upload Alunos.API artifacts
         uses: actions/upload-artifact@v4
@@ -92,7 +91,6 @@ jobs:
 
       - name: Publish Auth.API
         run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --no-build --output ./Coldmart.Auth.API
-        if: github.ref == 'refs/heads/main'
       
       - name: Upload Auth.API artifacts
         uses: actions/upload-artifact@v4
@@ -102,7 +100,6 @@ jobs:
 
       - name: Publish Cursos.API
         run: dotnet publish ./src/Coldmart.Cursos.API/Coldmart.Cursos.API.csproj --no-restore --no-build --output ./Coldmart.Cursos.API
-        if: github.ref == 'refs/heads/main'
       
       - name: Upload Cursos.API artifacts
         uses: actions/upload-artifact@v4
@@ -112,7 +109,6 @@ jobs:
 
       - name: Publish Pagamentos.API
         run: dotnet publish ./src/Coldmart.Pagamentos.API/Coldmart.Pagamentos.API.csproj --no-restore --no-build --output ./Coldmart.Pagamentos.API
-        if: github.ref == 'refs/heads/main'
       
       - name: Upload Pagamentos.API artifacts
         uses: actions/upload-artifact@v4
@@ -122,7 +118,6 @@ jobs:
 
       - name: Publish BFF
         run: dotnet publish ./src/Coldmart.BFF/Coldmart.BFF.csproj --no-restore --no-build --output ./Coldmart.BFF
-        if: github.ref == 'refs/heads/main'
          
       - name: Upload BFF artifacts
         uses: actions/upload-artifact@v4
