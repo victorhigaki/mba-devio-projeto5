@@ -87,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Alunos.API
-          path: ./Alunos.API
+          path: ./Coldmart.Alunos.API
 
       - name: Publish Auth.API
         run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --output ./Coldmart.Auth.API
@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Auth.API
-          path: ./Auth.API
+          path: ./Coldmart.Auth.API
 
       - name: Publish Cursos.API
         run: dotnet publish ./src/Coldmart.Cursos.API/Coldmart.Cursos.API.csproj --output ./Coldmart.Cursos.API
@@ -105,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Cursos.API
-          path: ./Cursos.API
+          path: ./Coldmart.Cursos.API
 
       - name: Publish Pagamentos.API
         run: dotnet publish ./src/Coldmart.Pagamentos.API/Coldmart.Pagamentos.API.csproj --output ./Coldmart.Pagamentos.API
@@ -114,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Pagamentos.API
-          path: ./Pagamentos.API
+          path: ./Coldmart.Pagamentos.API
 
       - name: Publish BFF
         run: dotnet publish ./src/Coldmart.BFF/Coldmart.BFF.csproj --output ./Coldmart.BFF
@@ -123,7 +123,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BFF
-          path: ./BFF
+          path: ./Coldmart.BFF
 
   backend-lint:
     needs: versionamento
