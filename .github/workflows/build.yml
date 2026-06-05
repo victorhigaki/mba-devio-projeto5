@@ -81,7 +81,7 @@ jobs:
           path: TestResults
 
       - name: Publish
-        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --no-build --configuration Release --output ./publish
+        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --no-build --configuration Release --output ./publish/Coldmart.Auth.API
         if: github.ref == 'refs/heads/main'
 
       - name: Upload dotnet artifacts
