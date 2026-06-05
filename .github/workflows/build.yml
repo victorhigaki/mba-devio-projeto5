@@ -80,8 +80,24 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
-      - name: Publish
-        run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --no-restore --no-build --configuration Release --output ./publish/Coldmart.Alunos.API
+      - name: Publish Alunos.API
+        run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --no-restore --no-build --output ./publish/Coldmart.Alunos.API
+        if: github.ref == 'refs/heads/main'
+
+      - name: Publish Auth.API
+        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --no-build --output ./publish/Coldmart.Auth.API
+        if: github.ref == 'refs/heads/main'
+
+      - name: Publish Cursos.API
+        run: dotnet publish ./src/Coldmart.Cursos.API/Coldmart.Cursos.API.csproj --no-restore --no-build --output ./publish/Coldmart.Cursos.API
+        if: github.ref == 'refs/heads/main'
+
+      - name: Publish Pagamentos.API
+        run: dotnet publish ./src/Coldmart.Pagamentos.API/Coldmart.Pagamentos.API.csproj --no-restore --no-build --output ./publish/Coldmart.Pagamentos.API
+        if: github.ref == 'refs/heads/main'
+        
+      - name: Publish BFF
+        run: dotnet publish ./src/Coldmart.BFF/Coldmart.BFF.csproj --no-restore --no-build --output ./publish/Coldmart.BFF
         if: github.ref == 'refs/heads/main'
 
       - name: Upload dotnet artifacts
@@ -160,6 +176,22 @@ jobs:
           path: app
           merge-multiple: false
 
-      - name: Build Docker Image
+      - name: Build Docker Image Cursos.API
         run: |
-          docker build -t auth:${{ env.version }} ./src/Coldmart.Alunos.API
+          docker build -t cursos:${{ env.version }} ./src/Coldmart.Cursos.API
+
+      - name: Build Docker Image Alunos.API
+        run: |
+          docker build -t alunos:${{ env.version }} ./src/Coldmart.Alunos.API
+
+      - name: Build Docker Image Auth.API
+        run: |
+          docker build -t auth:${{ env.version }} ./src/Coldmart.Auth.API
+
+      - name: Build Docker Image Pagamentos.API
+        run: |
+          docker build -t pagamentos:${{ env.version }} ./src/Coldmart.Pagamentos.API
+
+      - name: Build Docker Image BFF
+        run: |
+          docker build -t bff:${{ env.version }} ./src/Coldmart.BFF
