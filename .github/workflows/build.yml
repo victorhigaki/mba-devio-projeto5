@@ -81,7 +81,7 @@ jobs:
           path: TestResults
 
       - name: Publish
-        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --no-build --configuration Release --output ./publish/Coldmart.Auth.API
+        run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --no-restore --no-build --configuration Release --output ./publish/Coldmart.Alunos.API
         if: github.ref == 'refs/heads/main'
 
       - name: Upload dotnet artifacts
@@ -162,4 +162,4 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t auth:${{ env.version }} ./src/Coldmart.Auth.API
+          docker build -t auth:${{ env.version }} ./src/Coldmart.Alunos.API
