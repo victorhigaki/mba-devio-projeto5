@@ -195,6 +195,10 @@ jobs:
           path: 
           merge-multiple: false
 
+      - name: Build Docker Image Alunos.API
+        run: |
+          docker build -t alunos:${{ env.version }} ./src/Coldmart.Alunos.API
+
       - name: Build Docker Image Auth.API
         run: |
           docker build -t auth:${{ env.version }} ./src/Coldmart.Auth.API
@@ -203,9 +207,7 @@ jobs:
         run: |
           docker build -t cursos:${{ env.version }} ./src/Coldmart.Cursos.API
 
-      - name: Build Docker Image Alunos.API
-        run: |
-          docker build -t alunos:${{ env.version }} ./src/Coldmart.Alunos.API
+
 
       - name: Build Docker Image Pagamentos.API
         run: |
