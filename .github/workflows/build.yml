@@ -80,17 +80,8 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
-      - name: Publish Alunos.API
-        run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --output ./Coldmart.Alunos.API
-        
-      - name: Upload Alunos.API artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Alunos.API
-          path: ./Coldmart.Alunos.API
-
       - name: Publish Auth.API
-        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --output ./Coldmart.Auth.API
+        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --configuration Release --output ./Coldmart.Auth.API
       
       - name: Upload Auth.API artifacts
         uses: actions/upload-artifact@v4
@@ -98,8 +89,17 @@ jobs:
           name: Auth.API
           path: ./Coldmart.Auth.API
 
+      - name: Publish Alunos.API
+        run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --no-restore --configuration Release --output ./Coldmart.Alunos.API
+        
+      - name: Upload Alunos.API artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Alunos.API
+          path: ./Coldmart.Alunos.API
+
       - name: Publish Cursos.API
-        run: dotnet publish ./src/Coldmart.Cursos.API/Coldmart.Cursos.API.csproj --output ./Coldmart.Cursos.API
+        run: dotnet publish ./src/Coldmart.Cursos.API/Coldmart.Cursos.API.csproj --no-restore --configuration Release --output ./Coldmart.Cursos.API
       
       - name: Upload Cursos.API artifacts
         uses: actions/upload-artifact@v4
@@ -108,7 +108,7 @@ jobs:
           path: ./Coldmart.Cursos.API
 
       - name: Publish Pagamentos.API
-        run: dotnet publish ./src/Coldmart.Pagamentos.API/Coldmart.Pagamentos.API.csproj --output ./Coldmart.Pagamentos.API
+        run: dotnet publish ./src/Coldmart.Pagamentos.API/Coldmart.Pagamentos.API.csproj --no-restore --configuration Release --output ./Coldmart.Pagamentos.API
       
       - name: Upload Pagamentos.API artifacts
         uses: actions/upload-artifact@v4
@@ -117,7 +117,7 @@ jobs:
           path: ./Coldmart.Pagamentos.API
 
       - name: Publish BFF
-        run: dotnet publish ./src/Coldmart.BFF/Coldmart.BFF.csproj --output ./Coldmart.BFF
+        run: dotnet publish ./src/Coldmart.BFF/Coldmart.BFF.csproj --no-restore --configuration Release --output ./Coldmart.BFF
          
       - name: Upload BFF artifacts
         uses: actions/upload-artifact@v4
@@ -195,6 +195,10 @@ jobs:
           path: 
           merge-multiple: false
 
+      - name: Build Docker Image Auth.API
+        run: |
+          docker build -t auth:${{ env.version }} ./src/Coldmart.Auth.API
+
       - name: Build Docker Image Cursos.API
         run: |
           docker build -t cursos:${{ env.version }} ./src/Coldmart.Cursos.API
@@ -202,10 +206,6 @@ jobs:
       - name: Build Docker Image Alunos.API
         run: |
           docker build -t alunos:${{ env.version }} ./src/Coldmart.Alunos.API
-
-      - name: Build Docker Image Auth.API
-        run: |
-          docker build -t auth:${{ env.version }} ./src/Coldmart.Auth.API
 
       - name: Build Docker Image Pagamentos.API
         run: |
