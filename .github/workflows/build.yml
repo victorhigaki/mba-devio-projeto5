@@ -1,0 +1,238 @@
+name: Build Project
+
+on:
+  push:
+    branches:
+      - main
+      - github-actions
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  versionamento:
+    runs-on: ubuntu-latest
+    name: Versionamento
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{github.head_ref}}
+          fetch-depth: 0
+        
+      - uses: codacy/git-version@2.8.0
+        id: version
+        with:
+          release-branch: main
+          prefix: v
+
+      - name: Tag do repositorio
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "::notice:: ${{ steps.version.outputs.version }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}"
+          git push --tags
+        if: github.ref == 'refs/heads/main'
+
+  backend-build-and-test:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Backend Build and Test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+          cache: true
+          cache-dependency-path: ./src/**/packages.lock.json
+
+      - name: Restore
+        run: 
+          dotnet restore ./Coldmart.sln
+
+      - name: Build
+        run: 
+          dotnet build --no-restore ./Coldmart.sln
+      
+      - name: Test
+        run: 
+          dotnet test --no-build --no-restore ./Coldmart.sln --logger trx --results-directory "TestResults"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: TestResults
+
+      - name: Publish Auth.API
+        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --configuration Release --output ./Coldmart.Auth.API
+      
+      - name: Upload Auth.API artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Auth.API
+          path: ./Coldmart.Auth.API
+
+      - name: Publish Alunos.API
+        run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --no-restore --configuration Release --output ./Coldmart.Alunos.API
+        
+      - name: Upload Alunos.API artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Alunos.API
+          path: ./Coldmart.Alunos.API
+
+      - name: Publish Cursos.API
+        run: dotnet publish ./src/Coldmart.Cursos.API/Coldmart.Cursos.API.csproj --no-restore --configuration Release --output ./Coldmart.Cursos.API
+      
+      - name: Upload Cursos.API artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cursos.API
+          path: ./Coldmart.Cursos.API
+
+      - name: Publish Pagamentos.API
+        run: dotnet publish ./src/Coldmart.Pagamentos.API/Coldmart.Pagamentos.API.csproj --no-restore --configuration Release --output ./Coldmart.Pagamentos.API
+      
+      - name: Upload Pagamentos.API artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pagamentos.API
+          path: ./Coldmart.Pagamentos.API
+
+      - name: Publish BFF
+        run: dotnet publish ./src/Coldmart.BFF/Coldmart.BFF.csproj --no-restore --configuration Release --output ./Coldmart.BFF
+         
+      - name: Upload BFF artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BFF
+          path: ./Coldmart.BFF
+
+  backend-lint:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Backend Lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: github/super-linter@v6
+        env:
+          DEFAULT_BRANCH: "main"
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  dependency-checks:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4
+        with:
+          comment-summary-in-pr: always
+          base-ref: main
+          head-ref: main
+
+  code-security-check:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    
+    strategy:
+      matrix:
+        include:
+          - name: Backend
+            language: csharp
+            build-mode: autobuild
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        name: Initialize CodeQL - ${{ matrix.name }}
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - uses: github/codeql-action/analyze@v3
+        name: Analyze CodeQL - ${{ matrix.name }}
+        with:
+          category: "/language:${{ matrix.language }}"
+  
+  build-docker-image:
+    needs: [versionamento, backend-build-and-test]
+    runs-on: ubuntu-latest
+
+    env:
+      version: ${{ needs.versionamento.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: 
+          merge-multiple: false
+
+      - name: Build Docker Image Alunos.API
+        run: |
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/alunos:${{ env.version }} ./src/Coldmart.Alunos.API
+
+      - name: Tag Docker Image
+        run: |
+          docker tag ${{ vars.DOCKERHUB_USERNAME }}/${{ github.repository }}:${{ env.version }} ${{ vars.DOCKERHUB_USERNAME }}/${{ github.repository }}:latest
+
+      - name: Build Docker Image Auth.API
+        run: |
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/auth:${{ env.version }} ./src/Coldmart.Auth.API
+
+      - name: Build Docker Image Cursos.API
+        run: |
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/cursos:${{ env.version }} ./src/Coldmart.Cursos.API
+
+
+
+      - name: Build Docker Image Pagamentos.API
+        run: |
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/pagamentos:${{ env.version }} ./src/Coldmart.Pagamentos.API
+
+      - name: Build Docker Image BFF
+        run: |
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/bff:${{ env.version }} ./src/Coldmart.BFF
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ vars.DOCKERHUB_TOKEN }}
+    
+      - name: Docker Push
+        run: docker push --all-tags todo-app
