@@ -204,22 +204,35 @@ jobs:
 
       - name: Build Docker Image Alunos.API
         run: |
-          docker build -t alunos:${{ env.version }} ./src/Coldmart.Alunos.API
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/alunos:${{ env.version }} ./src/Coldmart.Alunos.API
+
+      - name: Tag Docker Image
+        run: |
+          docker tag ${{ vars.DOCKERHUB_USERNAME }}/${{ github.repository }}:${{ env.version }} ${{ vars.DOCKERHUB_USERNAME }}/${{ github.repository }}:latest
 
       - name: Build Docker Image Auth.API
         run: |
-          docker build -t auth:${{ env.version }} ./src/Coldmart.Auth.API
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/auth:${{ env.version }} ./src/Coldmart.Auth.API
 
       - name: Build Docker Image Cursos.API
         run: |
-          docker build -t cursos:${{ env.version }} ./src/Coldmart.Cursos.API
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/cursos:${{ env.version }} ./src/Coldmart.Cursos.API
 
 
 
       - name: Build Docker Image Pagamentos.API
         run: |
-          docker build -t pagamentos:${{ env.version }} ./src/Coldmart.Pagamentos.API
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/pagamentos:${{ env.version }} ./src/Coldmart.Pagamentos.API
 
       - name: Build Docker Image BFF
         run: |
-          docker build -t bff:${{ env.version }} ./src/Coldmart.BFF
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/bff:${{ env.version }} ./src/Coldmart.BFF
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ vars.DOCKERHUB_TOKEN }}
+    
+      - name: Docker Push
+        run: docker push --all-tags todo-app
