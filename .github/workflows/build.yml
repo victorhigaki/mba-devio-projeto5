@@ -192,6 +192,10 @@ jobs:
   build-docker-image:
     needs: [versionamento, backend-build-and-test]
     runs-on: ubuntu-latest
+    strategy:
+      # Matrix defines the parameters for each separate API build
+      matrix:
+        api: [Auth.API, Alunos.API, Cursos.API, Pagamentos.API, BFF]
 
     env:
       version: ${{ needs.versionamento.outputs.version }}
@@ -204,37 +208,27 @@ jobs:
           path: 
           merge-multiple: false
 
-      - name: Build Docker Image Alunos.API
+      - name: Build Docker Image ${{ matrix.api }}
         run: |
-          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/alunos:${{ env.version }} ./src/Coldmart.Alunos.API
+          docker build -f ./src/Coldmart.${{ matrix.api }} -t ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:${{ env.version }} .
 
       - name: Tag Docker Image
         run: |
-          docker tag ${{ vars.DOCKERHUB_USERNAME }}/${{ github.repository }}:${{ env.version }} ${{ vars.DOCKERHUB_USERNAME }}/${{ github.repository }}:latest
+          docker tag ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:${{ env.version }} ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:latest
 
       - name: Build Docker Image Auth.API
         run: |
-          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/auth:${{ env.version }} ./src/Coldmart.Auth.API
+          docker build -t ${{ vars.DOCKERHUB_ACCOUNTID }}/auth:${{ env.version }} ./src/Coldmart.Auth.API
 
       - name: Build Docker Image Cursos.API
         run: |
-          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/cursos:${{ env.version }} ./src/Coldmart.Cursos.API
-
-
-
-      - name: Build Docker Image Pagamentos.API
-        run: |
-          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/pagamentos:${{ env.version }} ./src/Coldmart.Pagamentos.API
-
-      - name: Build Docker Image BFF
-        run: |
-          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/bff:${{ env.version }} ./src/Coldmart.BFF
+          docker build -t ${{ vars.DOCKERHUB_ACCOUNTID }}/cursos:${{ env.version }} ./src/Coldmart.Cursos.API
 
       - name: Docker Login
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ vars.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
     
       - name: Docker Push
-        run: docker push --all-tags todo-app
+        run: docker push --all-tags ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}
