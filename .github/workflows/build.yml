@@ -195,7 +195,13 @@ jobs:
     strategy:
       # Matrix defines the parameters for each separate API build
       matrix:
-        api: [Auth.API, Alunos.API, Cursos.API, Pagamentos.API, BFF]
+        apis: [
+          { name: "auth", project: "Auth.API" }, 
+          { name: "alunos", project: "Alunos.API" }, 
+          { name: "cursos", project: "Cursos.API" }, 
+          { name: "pagamentos", project: "Pagamentos.API" }, 
+          { name: "bff", project: "BFF" }
+        ]
 
     env:
       version: ${{ needs.versionamento.outputs.version }}
@@ -208,21 +214,13 @@ jobs:
           path: 
           merge-multiple: false
 
-      - name: Build Docker Image ${{ matrix.api }}
+      - name: Build Docker Image ${{ matrix.apis.name }}
         run: |
-          docker build -f ./src/Coldmart.${{ matrix.api }}/Dockerfile -t ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:${{ env.version }} .
+          docker build -f ./src/Coldmart.${{ matrix.apis.project }}/Dockerfile -t ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.apis.name }}:${{ env.version }} .
 
       - name: Tag Docker Image
         run: |
-          docker tag ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:${{ env.version }} ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:latest
-
-      - name: Build Docker Image Auth.API
-        run: |
-          docker build -t ${{ vars.DOCKERHUB_ACCOUNTID }}/auth:${{ env.version }} ./src/Coldmart.Auth.API
-
-      - name: Build Docker Image Cursos.API
-        run: |
-          docker build -t ${{ vars.DOCKERHUB_ACCOUNTID }}/cursos:${{ env.version }} ./src/Coldmart.Cursos.API
+          docker tag ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.apis.name }}:${{ env.version }} ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.apis.name }}:latest
 
       - name: Docker Login
         uses: docker/login-action@v3
@@ -231,4 +229,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
     
       - name: Docker Push
-        run: docker push --all-tags ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}
+        run: docker push --all-tags ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.apis.name }}
