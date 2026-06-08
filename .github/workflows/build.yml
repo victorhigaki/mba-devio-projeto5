@@ -210,7 +210,7 @@ jobs:
 
       - name: Build Docker Image ${{ matrix.api }}
         run: |
-          docker build -f ./src/Coldmart.${{ matrix.api }} -t ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:${{ env.version }} .
+          docker build -f ./src/Coldmart.${{ matrix.api }}/Dockerfile -t ${{ vars.DOCKERHUB_ACCOUNTID }}/${{ matrix.api }}:${{ env.version }} .
 
       - name: Tag Docker Image
         run: |
