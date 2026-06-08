@@ -52,6 +52,15 @@ jobs:
     needs: versionamento
     runs-on: ubuntu-latest
     name: Backend Build and Test
+    strategy:
+      matrix:
+        apis: [
+          { project: "Auth.API" }, 
+          { project: "Alunos.API" }, 
+          { project: "Cursos.API" }, 
+          { project: "Pagamentos.API" }, 
+          { project: "BFF" }
+        ]
 
     steps:
       - name: Checkout code
@@ -81,50 +90,14 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
-      - name: Publish Auth.API
-        run: dotnet publish ./src/Coldmart.Auth.API/Coldmart.Auth.API.csproj --no-restore --configuration Release --output ./Coldmart.Auth.API
+      - name: Publish ${{ matrix.apis.project }}
+        run: dotnet publish ./src/Coldmart.${{ matrix.apis.project }}/Coldmart.${{ matrix.apis.project }}.csproj --no-restore --configuration Release --output ./Coldmart.${{ matrix.apis.project }}
       
-      - name: Upload Auth.API artifacts
+      - name: Upload ${{ matrix.apis.name }} artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Auth.API
-          path: ./Coldmart.Auth.API
-
-      - name: Publish Alunos.API
-        run: dotnet publish ./src/Coldmart.Alunos.API/Coldmart.Alunos.API.csproj --no-restore --configuration Release --output ./Coldmart.Alunos.API
-        
-      - name: Upload Alunos.API artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Alunos.API
-          path: ./Coldmart.Alunos.API
-
-      - name: Publish Cursos.API
-        run: dotnet publish ./src/Coldmart.Cursos.API/Coldmart.Cursos.API.csproj --no-restore --configuration Release --output ./Coldmart.Cursos.API
-      
-      - name: Upload Cursos.API artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Cursos.API
-          path: ./Coldmart.Cursos.API
-
-      - name: Publish Pagamentos.API
-        run: dotnet publish ./src/Coldmart.Pagamentos.API/Coldmart.Pagamentos.API.csproj --no-restore --configuration Release --output ./Coldmart.Pagamentos.API
-      
-      - name: Upload Pagamentos.API artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Pagamentos.API
-          path: ./Coldmart.Pagamentos.API
-
-      - name: Publish BFF
-        run: dotnet publish ./src/Coldmart.BFF/Coldmart.BFF.csproj --no-restore --configuration Release --output ./Coldmart.BFF
-         
-      - name: Upload BFF artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: BFF
-          path: ./Coldmart.BFF
+          name: ${{ matrix.apis.project }}
+          path: ./Coldmart.${{ matrix.apis.project }}
 
   backend-lint:
     needs: versionamento
@@ -193,7 +166,6 @@ jobs:
     needs: [versionamento, backend-build-and-test]
     runs-on: ubuntu-latest
     strategy:
-      # Matrix defines the parameters for each separate API build
       matrix:
         apis: [
           { name: "auth", project: "Auth.API" }, 
